@@ -1,0 +1,258 @@
+package com.jph.takephoto.uitl;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.support.v4.content.FileProvider;
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.jph.takephoto.R;
+import com.jph.takephoto.model.CropOptions;
+import com.jph.takephoto.model.TContextWrap;
+import com.jph.takephoto.model.TException;
+import com.jph.takephoto.model.TExceptionType;
+import com.jph.takephoto.model.TImage;
+import com.jph.takephoto.model.TIntentWap;
+import com.leipeng.crop.activity.CropImageTabActivity;
+import com.lzy.imagepicker.bean.ImageItem;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageOptions;
+import com.theartofdev.edmodo.cropper.CropImageView;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.theartofdev.edmodo.cropper.CropImage.CROP_IMAGE_EXTRA_OPTIONS;
+import static com.theartofdev.edmodo.cropper.CropImage.CROP_IMAGE_EXTRA_SOURCE;
+
+/**
+ * 工具类
+ * Author: JPH
+ * Date: 2016/7/26 10:04
+ */
+public class TUtils {
+    private static final String TAG = IntentUtils.class.getName();
+
+
+    /**
+     * 将Image集合转换成Uri集合
+     *
+     * @param images
+     * @return
+     */
+    public static ArrayList<Uri> convertImageToUri(Context context, ArrayList<ImageItem> images) throws TException {
+        ArrayList<Uri> uris = new ArrayList();
+        for (ImageItem image : images) {
+            uris.add(FileProvider.getUriForFile(context, TConstant.getFileProviderName(context), new File(image.path)));
+        }
+        return uris;
+    }
+
+    /**
+     * 将Image集合转换成TImage集合
+     *
+     * @param images
+     * @return
+     */
+    public static ArrayList<TImage> getTImagesWithImages(ArrayList<ImageItem> images, TImage.FromType fromType) {
+        ArrayList<TImage> tImages = new ArrayList();
+        for (ImageItem image : images) {
+            tImages.add(TImage.of(image.path, fromType));
+        }
+        return tImages;
+    }
+
+    /**
+     * 将Uri集合转换成TImage集合
+     *
+     * @param uris
+     * @return
+     */
+    public static ArrayList<TImage> getTImagesWithUris(ArrayList<Uri> uris, TImage.FromType fromType) {
+        ArrayList<TImage> tImages = new ArrayList();
+        for (Uri uri : uris) {
+            tImages.add(TImage.of(uri, fromType));
+        }
+        return tImages;
+    }
+
+    /**
+     * @param contextWrap
+     * @param intentWap
+     */
+    public static void startActivityForResult(TContextWrap contextWrap, TIntentWap intentWap) {
+        if (contextWrap.getFragment() != null) {
+            contextWrap.getFragment().startActivityForResult(intentWap.getIntent(), intentWap.getRequestCode());
+        } else {
+            contextWrap.getActivity().startActivityForResult(intentWap.getIntent(), intentWap.getRequestCode());
+        }
+    }
+
+    /**
+     * 安全地发送Intent
+     *
+     * @param contextWrap
+     * @param intentWapList 要发送的Intent以及候选Intent
+     * @param defaultIndex  默认发送的Intent
+     * @param isCrop        是否为裁切照片的Intent
+     * @throws TException
+     */
+    public static void sendIntentBySafely(TContextWrap contextWrap, List<TIntentWap> intentWapList, int defaultIndex, boolean isCrop) throws TException {
+        if (defaultIndex + 1 > intentWapList.size())
+            throw new TException(isCrop ? TExceptionType.TYPE_NO_MATCH_PICK_INTENT : TExceptionType.TYPE_NO_MATCH_CROP_INTENT);
+        TIntentWap intentWap = intentWapList.get(defaultIndex);
+        List result = contextWrap.getActivity().getPackageManager().queryIntentActivities(intentWap.getIntent(), PackageManager.MATCH_ALL);
+        if (result.isEmpty()) {
+            sendIntentBySafely(contextWrap, intentWapList, ++defaultIndex, isCrop);
+        } else {
+            startActivityForResult(contextWrap, intentWap);
+        }
+    }
+
+    /**
+     * 拍照前检查是否有相机
+     **/
+    public static void captureBySafely(TContextWrap contextWrap, TIntentWap intentWap) throws TException {
+        List result = contextWrap.getActivity().getPackageManager().queryIntentActivities(intentWap.getIntent(), PackageManager.MATCH_ALL);
+        if (result.isEmpty()) {
+            Toast.makeText(contextWrap.getActivity(), contextWrap.getActivity().getResources().getText(R.string.tip_no_camera), Toast.LENGTH_SHORT).show();
+            throw new TException(TExceptionType.TYPE_NO_CAMERA);
+        } else {
+            startActivityForResult(contextWrap, intentWap);
+        }
+    }
+
+    /**
+     * 通过第三方工具裁切照片，当没有第三方裁切工具时，会自动使用自带裁切工具进行裁切
+     *
+     * @param contextWrap
+     * @param imageUri
+     * @param outPutUri
+     * @param options
+     */
+    public static void cropWithOtherAppBySafely(TContextWrap contextWrap, Uri imageUri, Uri outPutUri, CropOptions options) {
+        Intent nativeCropIntent = IntentUtils.getCropIntentWithOtherApp(imageUri, outPutUri, options);
+        List result = contextWrap.getActivity().getPackageManager().queryIntentActivities(nativeCropIntent, PackageManager.MATCH_ALL);
+        if (result.isEmpty()) {
+            cropWithOwnApp(contextWrap, imageUri, outPutUri, options);
+        } else {
+            startActivityForResult(contextWrap,
+                    new TIntentWap(IntentUtils.getCropIntentWithOtherApp(imageUri, outPutUri, options), TConstant.RC_CROP));
+        }
+    }
+
+    /**
+     * 通过TakePhoto自带的裁切工具裁切图片--其他
+     *
+     * @param contextWrap
+     * @param imageUri
+     * @param outPutUri
+     * @param options
+     */
+    public static void cropWithOwnApp(TContextWrap contextWrap, Uri imageUri, Uri outPutUri, CropOptions options) {
+        CropImage.ActivityBuilder cropBuilder = CropImage.activity(imageUri)
+                .setGuidelines(CropImageView.Guidelines.ON)
+                .setOutputUri(outPutUri)
+                .setActivityTitle("裁剪图片")
+                .setAllowCounterRotation(false);
+        if (options.getAspectX() * options.getAspectY() > 0) {
+            if (contextWrap.getFragment() != null) {
+                cropBuilder
+                        .setAspectRatio(options.getAspectX(), options.getAspectY())
+                        .start(contextWrap.getActivity(), contextWrap.getFragment());
+            } else {
+                cropBuilder
+                        .setAspectRatio(options.getAspectX(), options.getAspectY())
+                        .start(contextWrap.getActivity());
+            }
+        } else if (options.getOutputX() * options.getOutputY() > 0) {
+            if (contextWrap.getFragment() != null) {
+                cropBuilder
+                        .setMaxCropResultSize(options.getOutputX(), options.getOutputY())
+                        .start(contextWrap.getActivity(), contextWrap.getFragment());
+            } else {
+                cropBuilder
+                        .setMaxCropResultSize(options.getOutputX(), options.getOutputY())
+                        .start(contextWrap.getActivity());
+            }
+        } else {
+            if (contextWrap.getFragment() != null) {
+                cropBuilder
+                        .start(contextWrap.getActivity(), contextWrap.getFragment());
+            } else {
+                cropBuilder
+                        .start(contextWrap.getActivity());
+            }
+        }
+    }
+
+    /**
+     * 通过TakePhoto自带的裁切工具裁切图片--相机
+     *
+     * @param contextWrap
+     * @param imageUri
+     */
+    public static void cropWithOwnAppCamera(TContextWrap contextWrap, Uri imageUri, Uri outPutUri, CropOptions options) {
+        CropImageOptions mOptions = new CropImageOptions();
+        mOptions.outputUri = outPutUri;
+        if (options.getAspectX() * options.getAspectY() > 0) {
+            mOptions.aspectRatioX = options.getAspectX();
+            mOptions.aspectRatioY = options.getAspectY();
+            mOptions.fixAspectRatio = true;
+        } else if (options.getOutputX() * options.getOutputY() > 0) {
+            mOptions.maxCropResultWidth = options.getOutputX();
+            mOptions.maxCropResultHeight = options.getOutputY();
+        }
+        Intent intent = new Intent(contextWrap.getActivity(), CropImageTabActivity.class);
+        intent.putExtra(CROP_IMAGE_EXTRA_SOURCE, imageUri);
+        intent.putExtra(CROP_IMAGE_EXTRA_OPTIONS, mOptions);
+        startActivityForResult(contextWrap,
+                new TIntentWap(intent, CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE));
+    }
+
+
+    /**
+     * 是否裁剪之后返回数据
+     **/
+    public static boolean isReturnData() {
+        String release = Build.VERSION.RELEASE;
+        int sdk = Build.VERSION.SDK_INT;
+        Log.i(TAG, "release:" + release + "sdk:" + sdk);
+        String manufacturer = android.os.Build.MANUFACTURER;
+        if (!TextUtils.isEmpty(manufacturer)) {
+            if (manufacturer.toLowerCase().contains("lenovo")) {//对于联想的手机返回数据
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 显示圆形进度对话框
+     *
+     * @param activity
+     * @param progressTitle 显示的标题
+     * @return
+     * @author JPH
+     * Date 2014-12-12 下午7:04:09
+     */
+    public static ProgressDialog showProgressDialog(final Activity activity,
+                                                    String... progressTitle) {
+        if (activity == null || activity.isFinishing()) return null;
+        String title = activity.getResources().getString(R.string.tip_tips);
+        if (progressTitle != null && progressTitle.length > 0)
+            title = progressTitle[0];
+        ProgressDialog progressDialog = new ProgressDialog(activity);
+        progressDialog.setTitle(title);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+        return progressDialog;
+    }
+}

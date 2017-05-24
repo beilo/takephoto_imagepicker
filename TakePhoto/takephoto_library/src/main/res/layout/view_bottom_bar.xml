@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:layout_alignParentBottom="true"
+                android:paddingRight="10dp"
+                android:layout_height="50dp">
+
+    <TextView
+        android:id="@+id/tv_again"
+        android:layout_width="50dp"
+        android:gravity="center"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:textColor="@color/blue"
+        android:textSize="16sp"
+        android:text="重拍"
+        />
+
+    <TextView
+        android:id="@+id/tv_original"
+        android:layout_width="50dp"
+        android:gravity="center"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@+id/view"
+        android:textSize="16sp"
+        android:text="原图"
+        android:layout_marginRight="10dp"
+        />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:id="@+id/tv_tailoring"
+        android:layout_width="50dp"
+        android:gravity="center"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@+id/view"
+        android:textSize="16sp"
+        android:text="裁剪"
+        android:layout_marginLeft="10dp"
+        />
+
+    <TextView
+        android:id="@+id/tv_send"
+        android:layout_width="50dp"
+        android:gravity="center"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/blue"
+        android:textSize="16sp"
+        android:text="发送"
+        />
+</RelativeLayout>
