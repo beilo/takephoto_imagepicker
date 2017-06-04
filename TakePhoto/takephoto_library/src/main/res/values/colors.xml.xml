@@ -8,4 +8,7 @@
     <color name="blue">#336EFF</color>
     <color name="while_crop">#ffffff</color>
 
+    <color name="gray">#303030</color>
+    <color name="bar_title">#212021</color>
+
 </resources>

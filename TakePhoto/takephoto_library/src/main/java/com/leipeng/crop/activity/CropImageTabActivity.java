@@ -1,9 +1,13 @@
 package com.leipeng.crop.activity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -27,13 +31,18 @@ public class CropImageTabActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
+        actionBar.setTitle("裁剪");
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(),R.color.bar_title,null);
+        actionBar.setBackgroundDrawable(drawable);
         setContentView(R.layout.activity_tab_fragment);
         Intent intent = getIntent();
         Uri sourceUri = intent.getParcelableExtra(CropImage.CROP_IMAGE_EXTRA_SOURCE);
         CropImageOptions mOptions = intent.getParcelableExtra(CropImage.CROP_IMAGE_EXTRA_OPTIONS);
         if (savedInstanceState == null) {
             originalImageFragment = OriginalImageFragment.getInstance(sourceUri);
-            cropImageFragment = CropImageFragment.getInstance(sourceUri,mOptions);
+            cropImageFragment = CropImageFragment.getInstance(sourceUri, mOptions);
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.fl_content, originalImageFragment, originalImageFragment.getClass().getName())
@@ -57,13 +66,15 @@ public class CropImageTabActivity extends AppCompatActivity {
         final TextView original = (TextView) findViewById(R.id.tv_original);
         original.setTextColor(getResources().getColor(R.color.blue));
         final TextView tailoring = (TextView) findViewById(R.id.tv_tailoring);
-        tailoring.setTextColor(getResources().getColor(R.color.crop__button_text));
+        tailoring.setTextColor(getResources().getColor(R.color.while_crop));
 
         findViewById(R.id.tv_again)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // 重拍
+                        Intent intent = new Intent();
+                        setResult(Activity.RESULT_CANCELED, intent);
+                        finish();
                     }
                 });
         original
@@ -73,7 +84,7 @@ public class CropImageTabActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         // 原图
                         original.setTextColor(getResources().getColor(R.color.blue));
-                        tailoring.setTextColor(getResources().getColor(R.color.crop__button_text));
+                        tailoring.setTextColor(getResources().getColor(R.color.while_crop));
                         getSupportFragmentManager().beginTransaction()
                                 .show(originalImageFragment)
                                 .hide(cropImageFragment)
@@ -86,7 +97,7 @@ public class CropImageTabActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         // 裁剪
                         tailoring.setTextColor(getResources().getColor(R.color.blue));
-                        original.setTextColor(getResources().getColor(R.color.crop__button_text));
+                        original.setTextColor(getResources().getColor(R.color.while_crop));
                         getSupportFragmentManager().beginTransaction()
                                 .show(cropImageFragment)
                                 .hide(originalImageFragment)

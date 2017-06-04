@@ -1,23 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jph.takephoto" >
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA" />
+          package="com.jph.takephoto">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+
     <application
-        android:allowBackup="true">
-        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
-        <activity android:name="com.leipeng.crop.activity.CropImageTabActivity" />
+        android:allowBackup="true"
+        android:hardwareAccelerated="false"
+        android:largeHeap="true">
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity"/>
+        <activity
+            android:name="com.leipeng.crop.activity.CropImageTabActivity"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name="com.lzy.imagepicker.ui.ImagePreviewDelActivity"
             android:theme="@style/ImagePickerThemeFullScreen"/>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
+                android:resource="@xml/file_paths"/>
         </provider>
     </application>
 </manifest>

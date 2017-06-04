@@ -43,7 +43,6 @@ public class TConstant {
      **/
     public final static int RC_PICK_MULTIPLE = 1008;
 
-
     /**
      * requestCode 请求权限
      **/

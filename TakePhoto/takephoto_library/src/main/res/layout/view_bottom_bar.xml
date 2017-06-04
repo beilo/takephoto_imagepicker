@@ -4,6 +4,7 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="10dp"
                 android:layout_alignParentBottom="true"
+                android:background="@color/bar_title"
                 android:paddingRight="10dp"
                 android:layout_height="50dp">
 
@@ -25,6 +26,7 @@
         android:layout_height="match_parent"
         android:layout_toLeftOf="@+id/view"
         android:textSize="16sp"
+        android:textColor="@color/while_crop"
         android:text="原图"
         android:layout_marginRight="10dp"
         />
@@ -41,6 +43,7 @@
         android:gravity="center"
         android:layout_height="match_parent"
         android:layout_toRightOf="@+id/view"
+        android:textColor="@color/while_crop"
         android:textSize="16sp"
         android:text="裁剪"
         android:layout_marginLeft="10dp"
