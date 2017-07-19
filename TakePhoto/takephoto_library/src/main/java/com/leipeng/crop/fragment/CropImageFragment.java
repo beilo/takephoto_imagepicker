@@ -114,6 +114,7 @@ public class CropImageFragment extends Fragment implements CropImageView.OnCropI
                 cropImageView.getCropPoints(),
                 cropImageView.getCropRect(),
                 cropImageView.getRotatedDegrees(),
+                cropImageView.getCropRect(),
                 sampleSize);
         Intent intent = new Intent();
         intent.putExtra(CropImage.CROP_IMAGE_EXTRA_RESULT, result);

@@ -83,6 +83,7 @@ public class OriginalImageFragment extends Fragment {
                 null,
                 null,
                 0,
+                null,
                 0);
         Intent intent = new Intent();
         intent.putExtra(CropImage.CROP_IMAGE_EXTRA_RESULT, result);
