@@ -64,9 +64,9 @@ public class CropImageTabActivity extends AppCompatActivity {
 
     private void setupView() {
         final TextView original = (TextView) findViewById(R.id.tv_original);
-        original.setTextColor(getResources().getColor(R.color.blue));
+        original.setTextColor(ResourcesCompat.getColor(getResources(),R.color.blue,null));
         final TextView tailoring = (TextView) findViewById(R.id.tv_tailoring);
-        tailoring.setTextColor(getResources().getColor(R.color.while_crop));
+        tailoring.setTextColor(ResourcesCompat.getColor(getResources(),R.color.while_crop,null));
 
         findViewById(R.id.tv_again)
                 .setOnClickListener(new View.OnClickListener() {
