@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 25
@@ -31,3 +32,13 @@ dependencies {
 }
 
 //apply from: '../bintray.gradle'
+
+
+publish { //第三方库配置
+    userOrg = 'lonely-mushroom'  //bintray.com的用户名
+    groupId = 'com.lonely-mushroom' // 包名
+    artifactId = 'takephoto' // 模块名称
+    publishVersion = '0.0.4'  //版本号
+    desc = 'android 7 photo ' // 简单描述
+    website = 'https://github.com/LonelyMushroom/takephoto_imagepicker.git' //我也不知道
+}

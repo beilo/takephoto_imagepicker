@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'com.github.dcendents.android-maven'
+group='com.github.LonelyMushroom'
 
 android {
     compileSdkVersion 25
@@ -28,8 +30,9 @@ dependencies {
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.soundcloud.android.crop:lib_crop:1.0.0'
     compile 'me.shaohui.advancedluban:library:1.3.2'
-    compile 'com.theartofdev.edmodo:android-image-cropper:2.4.+'
-    //    compile 'com.lzy.widget:imagepicker:0.5.5'
+    compile('com.theartofdev.edmodo:android-image-cropper:2.4.7') {
+        exclude group: 'com.android.support'
+    }
     compile project(':imagepicker')
 }
 //apply from: "bintrayUpload.gradle"
@@ -39,7 +42,7 @@ publish { //第三方库配置
     userOrg = 'lonely-mushroom'  //bintray.com的用户名
     groupId = 'com.lonely-mushroom' // 包名
     artifactId = 'takephoto' // 模块名称
-    publishVersion = '0.0.2'  //版本号
+    publishVersion = '0.0.3'  //版本号
     desc = 'android 7 photo ' // 简单描述
     website = 'https://github.com/LonelyMushroom/takephoto_imagepicker.git' //我也不知道
 }
